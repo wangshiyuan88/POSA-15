@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ScrollView;
@@ -122,6 +123,7 @@ public class MainActivity extends Activity {
             // Create and start a background thread that uses the
             // Android HaMeR concurrency framework to run calls to
             // print() on the UI thread after a short 0.5 sec delay.
+            Log.i("MainActivity", "mDelayedOutputThread start");
             mDelayedOutputThread =
                 new DelayedOutputThread(mPlayPingPong);
             mDelayedOutputThread.start();
