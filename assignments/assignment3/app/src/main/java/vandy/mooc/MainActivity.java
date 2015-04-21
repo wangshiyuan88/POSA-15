@@ -5,11 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.IBinder;
-import android.os.Looper;
-import android.os.Message;
-import android.os.Messenger;
 import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -30,11 +26,11 @@ public class MainActivity extends LifecycleLoggingActivity {
     private final String TAG = getClass().getSimpleName();
 
     /**
-     * A value that uniquely identifies the request to download an
+     * values that uniquely identifies the request to download an
      * image.
      */
     private static final int DOWNLOAD_IMAGE_REQUEST = 1;
-
+    private static final int FILTER_IMAGE_REQUEST = 2;
     /**
      * EditText field for entering the desired URL to an image.
      */
@@ -47,73 +43,28 @@ public class MainActivity extends LifecycleLoggingActivity {
      */
     private Uri mDefaultUrl =
         Uri.parse("http://www.dre.vanderbilt.edu/~schmidt/robot.png");
-    private Handler handler;
     /**
      * Hook method called when a new instance of Activity is created.
      * One time initialization code goes here, e.g., UI layout and
      * some class scope variable initialization.
      *
-     * @param Bundle object that contains saved state information.
      */
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         // Always call super class for necessary
         // initialization/implementation.
     	super.onCreate(savedInstanceState);
         // Set the default layout.
-    	
         // Cache the EditText that holds the urls entered by the user
         // (if any).
     	initUI();
-    	handler = new MyHandler(this);
     }
 
-    private void initHandler() {
-    	 handler=new Handler(Looper.getMainLooper()) {
-    	    @Override
-    	    public void handleMessage(Message msg) {
-    	      mButton.setEnabled(true);
-    	      switch (msg.what){
-    	      	case DownloadImageActivity.DOWNLOADACTIVITY:
-    	      		((Activity) msg.obj).finish();
-    	      }
-    	    }
-    	  };		
-	}
 
-    
-    private class MyHandler extends Handler{
-    	Activity mActivity;
-    	private MyHandler(Activity activity){
-    		super(Looper.getMainLooper());
-    		mActivity = activity;
-    	}
-    	
-    	
-    	@Override
- 	    public void handleMessage(final Message msg) {
- 	      mButton.setEnabled(true);
- 	      switch (msg.what){
- 	      	case DownloadImageActivity.DOWNLOADACTIVITY:{
- 	      	 if (Looper.getMainLooper() == Looper.myLooper()) {
- 	      		 ((Activity) msg.obj).finish();
- 	         } 
- 	        // Otherwise, create a new Runnable command that's posted to
- 	        // the UI Thread to display the image.
- 	        else {
- 	            mActivity.runOnUiThread(new Runnable() {
- 	                public void run() {   
- 	                	 ((Activity) msg.obj).finish();
- 	            }});
- 	        }
- 	      	}
- 	      }
- 	    }
-    }
 	private void initUI() {
-    	setContentView(R.layout.main_activity);
-      	mUrlEditText = (EditText) findViewById(R.id.url);
-      	mButton = (Button) findViewById(R.id.button1);
+        setContentView(R.layout.main_activity);
+      	mUrlEditText = (EditText)(findViewById(R.id.url));
+      	mButton = (Button)(findViewById(R.id.button1));
       	mButton.setOnClickListener(new View.OnClickListener() {
       	    @Override
       	    public void onClick(View v) {
@@ -142,7 +93,7 @@ public class MainActivity extends LifecycleLoggingActivity {
             // create a new Intent to an Activity that can download an
             // image from the URL given by the user.  In this case
             // it's an Intent that's implemented by the
-            // GenericImageActivity.
+            // DownloadImageActivity.
             Intent mIntent = makeDownloadImageIntent(url);
             
             // Start the Activity associated with the Intent, which
@@ -155,7 +106,22 @@ public class MainActivity extends LifecycleLoggingActivity {
             e.printStackTrace();
         }
     }
+    private void filterImage(String url){
+        try {
+            Intent filterImageIntent = makeFilterImageIntent(url);
+            startActivityForResult(filterImageIntent, FILTER_IMAGE_REQUEST);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
+
+    private Intent makeFilterImageIntent(String url){
+        // Create an intent that will filter the image.
+        Intent mIntent = new Intent(this, FilterImageActivity.class);
+        mIntent.setData( Uri.parse(url) );
+        return mIntent;
+    }
     /**
      * Hook method called back by the Android Activity framework when
      * an Activity that's been launched exits, giving the requestCode
@@ -163,36 +129,35 @@ public class MainActivity extends LifecycleLoggingActivity {
      * additional data from it.
      */
     @Override
-    protected void onActivityResult(int requestCode,
+    public void onActivityResult(int requestCode,
                                     int resultCode,
                                     Intent data) {
         // Check if the started Activity completed successfully.
-        // @@ TODO -- you fill in here, replacing true with the right
-        // code.
         if (requestCode == DOWNLOAD_IMAGE_REQUEST) {
             // Check if the request code is what we're expecting.
-            // @@ TODO -- you fill in here, replacing true with the
-            // right code.
             if (resultCode == RESULT_OK) {
-                // Call the makeGalleryIntent() factory method to
-                // create an Intent that will launch the "Gallery" app
-                // by passing in the path to the downloaded image
-                // file.
-            	Log.i(TAG, "Ready to display image...");
-            	String imagePath = ((Uri) data.getExtras().get("IMAGE_URL")).toString();
-            	Intent galleryIntent = makeGalleryIntent(imagePath);
-                // @@ TODO -- you fill in here.
-            	this.startActivity(galleryIntent);
-                // Start the Gallery Activity.
-                // @@ TODO -- you fill in here.
+                // Call the filterImage to do the filtering
+            	Log.i(TAG, "Ready to filter image...");
+            	String imagePath = ((Uri) data.getExtras().get("URL")).toString();
+            	filterImage(imagePath);
+
+            }else if(requestCode == RESULT_CANCELED){
+                Log.e(TAG, "Failed to download image...");
             }
         }
         // Check if the started Activity did not complete successfully
         // and inform the user a problem occurred when trying to
         // download contents at the given URL.
-        // @@ TODO -- you fill in here, replacing true with the right
-        // code.
-        else if (true) {
+        else if (requestCode == FILTER_IMAGE_REQUEST) {
+            if (resultCode == RESULT_OK){
+                Log.i(TAG, "Ready to display image...");
+                String imagePath = ((Uri) data.getExtras().get("URL")).toString();
+                Intent galleryIntent = makeGalleryIntent(imagePath);
+                startActivity(galleryIntent);
+            }
+            else if(requestCode == RESULT_CANCELED){
+                Log.e(TAG, "Failed to filer image...");
+            }
         }
     }    
 
@@ -203,12 +168,9 @@ public class MainActivity extends LifecycleLoggingActivity {
     private Intent makeGalleryIntent(String pathToImageFile) {
         // Create an intent that will start the Gallery app to view
         // the image.
-    	// TODO -- you fill in here, replacing "false" with the proper
-    	// code.
     	Intent galleryIntent = new Intent();
     	galleryIntent.setAction(Intent.ACTION_VIEW );
     	galleryIntent.setDataAndType(Uri.parse("file://" + pathToImageFile), "image/*");
-    	//intent.setDataAndType(Uri.parse("file://" + pathToImageFile), "image/*");
         return galleryIntent;
    
     }
@@ -220,7 +182,6 @@ public class MainActivity extends LifecycleLoggingActivity {
         // Create an intent that will download the image from the web.
     	Intent myIntent = new Intent(Intent.ACTION_WEB_SEARCH);
     	myIntent.setData(url);
-    	myIntent.putExtra("Messenger", new Messenger(handler));
     	return myIntent;
     }
 
@@ -251,8 +212,7 @@ public class MainActivity extends LifecycleLoggingActivity {
     }
     
     private boolean checkUrlValidation(Uri url){
-    	String pattern = "^.*://.*\\.(png||jpg)$";
-    	return url.toString().matches(pattern);
+        return URLUtil.isValidUrl(url.toString());
     }
 
     /**

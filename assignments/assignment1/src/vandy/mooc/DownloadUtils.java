@@ -54,7 +54,7 @@ public class DownloadUtils {
      * disk.
      *
      * @param context	the context in which to write the file.
-     * @param url       the web url.
+     * @param uri       the web url.
      * 
      * @return          the absolute path to the downloaded image file on the file system.
      */
@@ -119,9 +119,6 @@ public class DownloadUtils {
         Bitmap imageToSave =
             BitmapFactory.decodeStream(inputStream);
 
-        if (imageToSave == null)
-            return null;
-
         File directory =
             new File(Environment.getExternalStoragePublicDirectory
                      (Environment.DIRECTORY_DCIM)
@@ -148,7 +145,6 @@ public class DownloadUtils {
             inputStream.close();
         } catch (Exception e) {
             e.printStackTrace();
-            return null;
         }
 
         // Get the absolute path of the image.

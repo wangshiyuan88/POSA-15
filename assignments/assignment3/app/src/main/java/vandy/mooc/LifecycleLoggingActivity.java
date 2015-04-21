@@ -1,6 +1,7 @@
 package vandy.mooc;
 
 import android.app.Activity;
+import android.app.Fragment;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -24,7 +25,7 @@ public abstract class LifecycleLoggingActivity extends Activity {
      * @param Bundle object that contains saved state information.
      */
     @Override
-    protected void onCreate(Bundle savedInstanceState){
+    public void onCreate(Bundle savedInstanceState){
         // Always call super class for necessary
         // initialization/implementation.
         super.onCreate(savedInstanceState);
@@ -53,7 +54,7 @@ public abstract class LifecycleLoggingActivity extends Activity {
      * onCreate().
      */	
     @Override
-    protected void onStart(){
+    public void onStart(){
         // Always call super class for necessary
         // initialization/implementation.
         // TODO - you fill in here.
@@ -70,7 +71,7 @@ public abstract class LifecycleLoggingActivity extends Activity {
      * camera.
      */
     @Override
-    protected void onResume(){
+    public void onResume(){
         // Always call super class for necessary
         // initialization/implementation and then log which lifecycle
         // hook method is being called.
@@ -87,7 +88,7 @@ public abstract class LifecycleLoggingActivity extends Activity {
      * used to release exclusive resources.
      */
     @Override
-    protected void onPause(){
+    public void onPause(){
         // Always call super class for necessary
         // initialization/implementation and then log which lifecycle
         // hook method is being called.
@@ -101,7 +102,7 @@ public abstract class LifecycleLoggingActivity extends Activity {
      * (onSaveInstanceState()) in case activity is killed.
      */
     @Override
-    protected void onStop(){
+    public void onStop(){
         // Always call super class for necessary
         // initialization/implementation and then log which lifecycle
         // hook method is being called.
@@ -113,25 +114,12 @@ public abstract class LifecycleLoggingActivity extends Activity {
     }
 	
     /**
-     * Hook method called when user restarts a stopped activity.  Is
-     * followed by a call to onStart() and onResume().
-     */	
-    @Override
-    protected void onRestart(){
-        // Always call super class for necessary
-        // initialization/implementation and then log which lifecycle
-        // hook method is being called.
-        // TODO - you fill in here.
-    	super.onRestart();
-    }
-	
-    /**
      * Hook method that gives a final chance to release resources and
      * stop spawned threads.  onDestroy() may not always be
      * called-when system kills hosting process
      */
     @Override
-    protected void onDestroy(){
+    public void onDestroy(){
         // Always call super class for necessary
         // initialization/implementation and then log which lifecycle
         // hook method is being called.
