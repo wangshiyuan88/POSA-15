@@ -24,6 +24,7 @@ public class GenericImageFragment extends Fragment{
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setRetainInstance(true);
         Uri url = Uri.parse(getArguments().getString("URL"));
         new GenericImageAsyncTask().execute(url);
     }
